@@ -83,6 +83,51 @@ animated_line_epg = plot(0, 0, 'y-', 'LineWidth', 1);
 animated_line_ek = plot(0, 0, 'g-', 'LineWidth', 1);
 animated_line_et = plot(0, 0, 'r-', 'LineWidth', 2);
 
+% ------- INTEGRACION -----------------------------------------------------------------------------------
+
+% Funciones del péndulo
+velocidad_angular = @(t) -theta0 * w * sin(w * t + phi); % Velocidad angular
+aceleracion_angular = @(t) -theta0 * w^2 * cos(w * t + phi); % Aceleración angular
+
+% Definiciones para las reglas numéricas
+N = 8000; % Número de intervalos
+dx = tiempo / N;
+x = linspace(0, tiempo, N + 1); % Puntos de evaluación
+
+% Inicialización
+fa_vel = velocidad_angular(x); % Valores de velocidad angular en puntos
+fa_acc = aceleracion_angular(x); % Valores de aceleración angular en puntos
+fm_vel = velocidad_angular((x(1:end-1) + x(2:end)) / 2); % Puntos medios para velocidad
+fm_acc = aceleracion_angular((x(1:end-1) + x(2:end)) / 2); % Puntos medios para aceleración
+
+% Reglas de integración
+rectangulo = @(dx, f) sum(dx * f(1:end-1));
+trapecio = @(dx, f) dx * sum((f(1:end-1) + f(2:end)) / 2);
+simpson = @(dx, f, fm) dx / 6 * sum(f(1:end-1) + 4 * fm + f(2:end));
+
+% Cálculo de áreas para velocidad angular
+A_rect_vel = rectangulo(dx, fa_vel);
+A_trap_vel = trapecio(dx, fa_vel);
+A_simp_vel = simpson(dx, fa_vel, fm_vel);
+
+% Cálculo de áreas para aceleración angular
+A_rect_acc = rectangulo(dx, fa_acc);
+A_trap_acc = trapecio(dx, fa_acc);
+A_simp_acc = simpson(dx, fa_acc, fm_acc);
+
+% Resultados
+disp('Área bajo la curva de velocidad angular:');
+fprintf('  Regla de Rectángulos: %.4f\n', A_rect_vel);
+fprintf('  Regla de Trapecios: %.4f\n', A_trap_vel);
+fprintf('  Regla de Simpson: %.4f\n', A_simp_vel);
+
+disp('Área bajo la curva de aceleración angular:');
+fprintf('  Regla de Rectángulos: %.4f\n', A_rect_acc);
+fprintf('  Regla de Trapecios: %.4f\n', A_trap_acc);
+fprintf('  Regla de Simpson: %.4f\n', A_simp_acc);
+
+
+% ------- ANIMACION ----------------------------------------------------------------------------------- 
 % Animar el movimiento del péndulo
 for i = 1:length(t)
     % Actualizar la posición del bob y la línea
@@ -99,15 +144,3 @@ for i = 1:length(t)
     % Pausa para controlar la velocidad de la animación
     pause(0.1);
 end
-
-% Utiliza la regla de simpson para calcular la integral
-a = 0; 
-b = tiempo; 
-n = 10000; 
-h = (b - a) / n; % Tamaño del intervalo
-
-I_simp = (h / 3) * (omega(1) + 4*sum(omega(2:2:end-1)) + 2*sum(omega(3:2:end-2)) + omega(end));
-fprintf('Velocidad angular obtenida mediante integracion: %.4f\n', I_simp);
-
-I_simp2 = (h / 3) * (theta(1) + 4*sum(theta(2:2:end-1)) + 2*sum(theta(3:2:end-2)) + theta(end));
-fprintf('Posicion angular obtenida mediante integracion: %.4f\n', I_simp2);
