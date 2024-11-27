@@ -83,6 +83,24 @@ animated_line_epg = plot(0, 0, 'y-', 'LineWidth', 1);
 animated_line_ek = plot(0, 0, 'g-', 'LineWidth', 1);
 animated_line_et = plot(0, 0, 'r-', 'LineWidth', 2);
 
+% ------- ANIMACION ----------------------------------------------------------------------------------- 
+% Animar el movimiento del péndulo
+for i = 1:length(t)
+    % Actualizar la posición del bob y la línea
+    set(line, 'XData', [0, x(i)], 'YData', [0, y(i)]);
+    set(bob, 'XData', x(i), 'YData', y(i));
+    
+    % Actualizar la posición de la línea animada
+    set(animated_line_pos, 'XData', t(1:i), 'YData', theta(1:i), 'DisplayName', 'Pos Ang');
+    set(animated_line_vel, 'XData', t(1:i), 'YData', omega(1:i), 'DisplayName', 'Vel Ang');
+    set(animated_line_epg, 'XData', t(1:i), 'YData', U(1:i), 'DisplayName', 'U');
+    set(animated_line_ek, 'XData', t(1:i), 'YData', K(1:i), 'DisplayName', 'K');
+    set(animated_line_et, 'XData', t(1:i), 'YData', E_total(1:i), 'DisplayName', 'EM');
+    
+    % Pausa para controlar la velocidad de la animación
+    pause(0.1);
+end
+
 % ------- INTEGRACION -----------------------------------------------------------------------------------
 
 % Funciones del péndulo
@@ -126,21 +144,22 @@ fprintf('  Regla de Rectángulos: %.4f\n', A_rect_acc);
 fprintf('  Regla de Trapecios: %.4f\n', A_trap_acc);
 fprintf('  Regla de Simpson: %.4f\n', A_simp_acc);
 
+% Graficación de las áreas bajo la curva
+figure;
+subplot(2, 1, 1);
+plot(x, fa_vel, 'b');
+hold on;
+fill([x(1), x, x(end)], [0, fa_vel, 0], 'b', 'FaceAlpha', 0.2);
+title('Área bajo la curva de Velocidad Angular');
+xlabel('Tiempo (s)');
+ylabel('Velocidad Angular (rad/s)');
+grid on;
 
-% ------- ANIMACION ----------------------------------------------------------------------------------- 
-% Animar el movimiento del péndulo
-for i = 1:length(t)
-    % Actualizar la posición del bob y la línea
-    set(line, 'XData', [0, x(i)], 'YData', [0, y(i)]);
-    set(bob, 'XData', x(i), 'YData', y(i));
-    
-    % Actualizar la posición de la línea animada
-    set(animated_line_pos, 'XData', t(1:i), 'YData', theta(1:i), 'DisplayName', 'Pos Ang');
-    set(animated_line_vel, 'XData', t(1:i), 'YData', omega(1:i), 'DisplayName', 'Vel Ang');
-    set(animated_line_epg, 'XData', t(1:i), 'YData', U(1:i), 'DisplayName', 'U');
-    set(animated_line_ek, 'XData', t(1:i), 'YData', K(1:i), 'DisplayName', 'K');
-    set(animated_line_et, 'XData', t(1:i), 'YData', E_total(1:i), 'DisplayName', 'EM');
-    
-    % Pausa para controlar la velocidad de la animación
-    pause(0.1);
-end
+subplot(2, 1, 2);
+plot(x, fa_acc, 'r');
+hold on;
+fill([x(1), x, x(end)], [0, fa_acc, 0], 'r', 'FaceAlpha', 0.2);
+title('Área bajo la curva de Aceleración Angular');
+xlabel('Tiempo (s)');
+ylabel('Aceleración Angular (rad/s^2)');
+grid on;
