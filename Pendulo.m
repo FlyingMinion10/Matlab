@@ -71,7 +71,7 @@ animated_line_vel = plot(0, 0, 'b-', 'LineWidth', 2);
 
 % Energías vs. Tiempo
 subplot(3, 1, 3);
-axis([0 tiempo 0 max(E_total)*mr]);
+axis([0 tiempo 0 max(E_total)*1.1]);
 hold on;
 grid on;
 xlabel('T (s)');
